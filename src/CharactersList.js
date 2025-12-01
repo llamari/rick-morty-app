@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
         borderColor: '#C0DF40',
         borderWidth: 5,
         borderStyle: 'solid',
-        elevation: 10, // obrigatório no Android pra aparecer
+        elevation: 10,
         marginTop: 10
     },
     cardName: {
