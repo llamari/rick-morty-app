@@ -1,7 +1,7 @@
 import { useRoute } from '@react-navigation/native';
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Animated, Easing } from "react-native";
+import { View, Text, StyleSheet, Image, Animated, Easing, ScrollView, ActivityIndicator } from "react-native";
 import { SPECIES_MAP, STATUS_MAP } from './CharactersList';
 import { useFonts } from 'expo-font';
 import { TradeWinds_400Regular } from '@expo-google-fonts/trade-winds';
@@ -66,9 +66,21 @@ export function CharacterDetails() {
     if (!fontsLoaded) {
         return null;
     }
-    
-    if (!character || !origin || !location) {
-        return <Text>Carregando...</Text>;
+
+    if (!character) {
+        return (
+            <View>
+                <View style={styles.header}>
+                    <Image resizeMode="contain" source={require("../assets/logo.png")} style={styles.img} />
+                </View>
+                <View style={styles.body}>
+                    <ActivityIndicator size="large" color="#04374a" />
+                    <Text style={{ marginTop: 10, fontSize: 18, color: '#04374a' }}>
+                        Carregando personagem...
+                    </Text>
+                </View>
+            </View>
+        )
     }
 
     const spin = spinValue.interpolate({
@@ -77,7 +89,7 @@ export function CharacterDetails() {
     });
 
     return (
-        <View>
+        <ScrollView>
             <View style={styles.header}>
                 <Image resizeMode="contain" source={require("../assets/logo.png")} style={styles.img} />
             </View>
@@ -101,22 +113,42 @@ export function CharacterDetails() {
                     <Text style={styles.characterInfo}>{SPECIES_MAP[character.species]}</Text>
                     <Text style={styles.characterInfo}>{GENDER_MAP[character.gender]}</Text>
                 </View>
-                <View style={styles.card}>
 
-                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', aligncharacters: 'center' }}>
+                {origin &&
+                    <View style={styles.card}>
 
-                        <View style={styles.cardInfoBox}>
-                            <Text style={[styles.cardTitle, { fontFamily: 'TradeWinds_400Regular' }]}>
-                                Origem
-                            </Text>
-                            <Text style={styles.cardInfo}>{origin.name}</Text>
-                            <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Tipo: </Text>{origin.type}</Text>
-                            <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Dimensão: </Text>{origin.dimension}</Text>
+                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', aligncharacters: 'center' }}>
+
+                            <View style={styles.cardInfoBox}>
+                                <Text style={[styles.cardTitle, { fontFamily: 'TradeWinds_400Regular' }]}>
+                                    Origem
+                                </Text>
+                                <Text style={styles.cardInfo}>{origin.name}</Text>
+                                <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Tipo: </Text>{origin.type}</Text>
+                                <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Dimensão: </Text>{origin.dimension}</Text>
+                            </View>
                         </View>
                     </View>
-                </View>
+                }
+
+                {location &&
+                    <View style={styles.card}>
+
+                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', aligncharacters: 'center' }}>
+
+                            <View style={styles.cardInfoBox}>
+                                <Text style={[styles.cardTitle, { fontFamily: 'TradeWinds_400Regular' }]}>
+                                    Localização Atual
+                                </Text>
+                                <Text style={styles.cardInfo}>{location.name}</Text>
+                                <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Tipo: </Text>{location.type}</Text>
+                                <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Dimensão: </Text>{location.dimension}</Text>
+                            </View>
+                        </View>
+                    </View>
+                }
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -137,7 +169,7 @@ const styles = StyleSheet.create({
         maxWidth: "70%"
     },
     body: {
-        height: '100%',
+        minHeight: '100%',
         width: "100%",
         backgroundColor: '#b0d9d4',
         zIndex: 1,

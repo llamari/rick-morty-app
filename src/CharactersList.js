@@ -2,8 +2,9 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { TradeWinds_400Regular } from '@expo-google-fonts/trade-winds';
 import { useEffect, useState, useCallback } from "react";
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, TextInput } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import { Search } from "lucide-react-native";
 
 export const STATUS_MAP = {
     Alive: "Vivo",
@@ -26,9 +27,11 @@ export const SPECIES_MAP = {
 
 export function CharactersList() {
     const [characters, setCharacters] = useState([]);
+    const [filteredCharacters, setFilteredCharacters] = useState([]);
     const [nextPage, setNextPage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
+    const [searchTerm, setSearchTerm] = useState("");
 
     let [fontsLoaded] = useFonts({
         TradeWinds_400Regular
@@ -38,6 +41,7 @@ export function CharactersList() {
         const response = await axios.get('https://rickandmortyapi.com/api/character')
 
         setCharacters(response.data.results);
+        setFilteredCharacters(response.data.results);
         setNextPage(response.data.info.next);
     }
 
@@ -73,6 +77,14 @@ export function CharactersList() {
         GetCharacters();
     }, [])
 
+    useEffect(() => {
+        setFilteredCharacters(
+            characters?.filter((character) =>
+                character.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        );
+    }, [searchTerm, characters]);
+
     if (!fontsLoaded) {
         return null;
     }
@@ -83,30 +95,56 @@ export function CharactersList() {
                 <Image resizeMode="contain" source={require("../assets/logo.png")} style={styles.img} />
             </View>
             <View style={styles.body}>
-                <FlatList
-                    data={characters}
-                    keyExtractor={(char) => char.id.toString()}
-                    renderItem={({ item }) =>
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={() => navigation.navigate("CharacterDetails", { id: item.id })}
-                        >
-                            <Text style={styles.cardName}>{item.name}</Text>
-                            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Image source={{ uri: item.image }}
-                                    style={styles.cardImg}
-                                />
-                                <View style={styles.cardInfoBox}>
-                                    <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Status: </Text>{STATUS_MAP[item.status]}</Text>
-                                    <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Espécie: </Text>{SPECIES_MAP[item.species]}</Text>
-                                    <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Origem: </Text>{item.origin.name}</Text>
+                <View style={styles.searchContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Buscar personagem pelo nome"
+                        placeholderTextColor="#e4f7ffff"
+                        value={searchTerm}
+                        onChangeText={(text) => setSearchTerm(text)}
+                    />
+                    <Search color="#2b8aafff" size={22} />
+                </View>
+
+                {filteredCharacters.length !== 0 ?
+                    <FlatList
+                        data={filteredCharacters}
+                        keyExtractor={(char) => char.id.toString()}
+                        renderItem={({ item }) =>
+                            <TouchableOpacity
+                                style={styles.card}
+                                onPress={() => navigation.navigate("CharacterDetails", { id: item.id })}
+                            >
+                                <Text style={styles.cardName}>{item.name}</Text>
+                                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Image source={{ uri: item.image }}
+                                        style={styles.cardImg}
+                                    />
+                                    <View style={styles.cardInfoBox}>
+                                        <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Status: </Text>{STATUS_MAP[item.status]}</Text>
+                                        <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Espécie: </Text>{SPECIES_MAP[item.species]}</Text>
+                                        <Text style={styles.cardInfo}><Text style={{ fontWeight: "700" }}>Origem: </Text>{item.origin.name}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                    }
-                    onEndReached={handleEndReached}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={renderFooter} />
+                            </TouchableOpacity>
+                        }
+                        onEndReached={handleEndReached}
+                        onEndReachedThreshold={0.5}
+                        ListFooterComponent={renderFooter}
+                    />
+                    
+                    :
+                    
+                    characters.length !== 0 ?
+                        <Text style={{ color: '#04374a', fontSize: 18, textAlign: 'center', marginTop: 20, height: '90%' }}>Nenhum personagem encontrado.</Text>
+                        :
+                        <View>
+                            <ActivityIndicator size="large" color="#04374a" />
+                            <Text style={{ marginTop: 10, fontSize: 18, color: '#04374a' }}>
+                                Carregando personagem...
+                            </Text>
+                        </View>
+                }
             </View>
         </View>
     )
@@ -175,5 +213,20 @@ const styles = StyleSheet.create({
     cardInfo: {
         color: '#04374a',
         fontSize: 15
-    }
+    },
+    searchContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderBottomWidth: 2,
+        borderBottomColor: "#2b8aafff",
+        marginTop: 20,
+        marginHorizontal: 20,
+        paddingBottom: 4,
+    },
+    input: {
+        flex: 1,
+        color: "#04374a",
+        fontSize: 16,
+        marginRight: 10,
+    },
 })
