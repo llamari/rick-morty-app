@@ -8,7 +8,7 @@ Aplicação interativa baseada no universo de Rick and Morty, permitindo explora
 ## 🚀 Funcionalidades
 
 - **Buscar Personagens**: Procure por personagens específicos da série
-- **Listar Episódios**: Visualize todos os episódios com detalhes
+- **Listar Personagens**: Visualize todos os personagens
 - **Conhecer mais**: Saiba mais detalhes sobre qualquer personagem
 
 ## 📦 Instalação
@@ -35,4 +35,4 @@ Escaneie o QR Code gerado e aproveite!
 
 ## 📷 Vídeo demonstrativo
 
-[Link do vídeo](url.do.video)
+[Link do vídeo](https://youtu.be/K2f3EqSV4Tg?si=Fk4pwjCKPIzYLfrM)
